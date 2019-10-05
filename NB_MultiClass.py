@@ -59,27 +59,27 @@ class naiveBayes:
         for i in range(numRows):
             x = testSet[i]
             numCols = x.shape[1] - 1
-
-            animeProb = 1
-            AskRedditProb = 1
-            baseballProb = 1
-            canadaProb = 1
-            conspiracyProb = 1
-            europeProb = 1
-            funnyProb = 1
-            gameofthronesProb = 1
-            GlobalOffensiveProb = 1
-            hockeyProb = 1
-            leagueoflegendsProb = 1
-            moviesProb = 1
-            MusicProb = 1
-            nbaProb = 1
-            nflProb = 1
-            OverwatchProb = 1
-            soccerProb = 1
-            treesProb = 1
-            worldnewsProb = 1
-            wowProb= 1
+            # this is initial p(y=c)
+            animeProb = self.animeTS.shape[0] / self.countTS
+            AskRedditProb = self.AskRedditTS.shape[0] / self.countTS
+            baseballProb = self.baseballTS.shape[0] / self.countTS
+            canadaProb = self.canadaTS.shape[0] / self.countTS
+            conspiracyProb = self.conspiracyTS.shape[0] / self.countTS
+            europeProb = self.europeTS.shape[0] / self.countTS
+            funnyProb = self.funnyTS.shape[0] / self.countTS
+            gameofthronesProb = self.gameofthronesTS.shape[0] / self.countTS
+            GlobalOffensiveProb = self.GlobalOffensiveTS.shape[0] / self.countTS
+            hockeyProb = self.hockeyTS.shape[0] / self.countTS
+            leagueoflegendsProb = self.leagueoflegnedsTS.shape[0] / self.countTS
+            moviesProb = self.moviesTS.shape[0] / self.countTS
+            MusicProb = self.MusicTS.shape[0] / self.countTS
+            nbaProb = self.nbaTS.shape[0] / self.countTS
+            nflProb = self.nflTS.shape[0] / self.countTS
+            OverwatchProb = self.OverwatchTS.shape[0] / self.countTS
+            soccerProb = self.soccerTS.shape[0] / self.countTS
+            treesProb = self.treesTS.shape[0] / self.countTS
+            worldnewsProb = self.worldnewsTS.shape[0] / self.countTS
+            wowProb= self.wowTS.shape[0] / self.countTS
 
             cpList = []
 
@@ -165,7 +165,10 @@ class naiveBayes:
             cpList.append(worldnewsProb)
             cpList.append(wowProb)
 
-            cpList.index(max(cpList))
+            maxProbClass = cpList.index(max(cpList))  # highest probability belonging to class index (eg. anime = 0, AskReddit = 1, ..)
+            predictList.append(maxProbClass) # add the index of the highest probabilty class
+
+        return predictList
 
 def main():
 
@@ -179,7 +182,6 @@ def main():
     print(trainSet[0][0])
     print(trainSet[0][1])
     #'sets\\reddit_train.csv'
-
 
 
 if __name__ == '__main__':
