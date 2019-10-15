@@ -2,6 +2,11 @@ import numpy as np
 import pandas as pd
 import csv
 import matplotlib.pyplot as plt
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_selection import SelectPercentile
+from sklearn.preprocessing import normalize
+
+
 class naiveBayes:
 
     thetaJY = {}
@@ -10,30 +15,29 @@ class naiveBayes:
     def __init__(self):
         pass
 
-    def fit(self, trainSet):
+    def fit(self, trainX, trainY):
 
-        countTS = trainSet.shape[0]  # number of training examples
-
-        animeTS = trainSet[np.where(trainSet[:, -1] == "anime")]
-        askRedditTS = trainSet[np.where(trainSet[:, -1] == "AskReddit")]
-        baseballTS = trainSet[np.where(trainSet[:, -1] == "baseball")]
-        canadaTS = trainSet[np.where(trainSet[:, -1] == "canada")]
-        conspiracyTS = trainSet[np.where(trainSet[:, -1] == "conspiracy")]
-        europeTS = trainSet[np.where(trainSet[:, -1] == "europe")]
-        funnyTS = trainSet[np.where(trainSet[:, -1] == "funny")]
-        gameofthronesTS = trainSet[np.where(trainSet[:, -1] == "gameofthrones")]
-        globalOffensiveTS = trainSet[np.where(trainSet[:, -1] == "GlobalOffensive")]
-        hockeyTS = trainSet[np.where(trainSet[:, -1] == "hockey")]
-        leagueoflegnedsTS = trainSet[np.where(trainSet[:, -1] == "leagueoflegends")]
-        moviesTS = trainSet[np.where(trainSet[:, -1] == "movies")]
-        musicTS = trainSet[np.where(trainSet[:, -1] == "Music")]
-        nbaTS = trainSet[np.where(trainSet[:, -1] == "nba")]
-        nflTS = trainSet[np.where(trainSet[:, -1] == "nfl")]
-        overwatchTS = trainSet[np.where(trainSet[:, -1] == "Overwatch")]
-        soccerTS = trainSet[np.where(trainSet[:, -1] == "soccer")]
-        treesTS = trainSet[np.where(trainSet[:, -1] == "trees")]
-        worldnewsTS = trainSet[np.where(trainSet[:, -1] == "worldnews")]
-        wowTS = trainSet[np.where(trainSet[:, -1] == "wow")]
+        countTS = trainX.shape[0]  # number of training examples
+        askRedditTS = trainX[np.where(trainY[:] == "anime")]
+        animeTS = trainX[np.where(trainY[:] == "AskReddit")]
+        baseballTS = trainX[np.where(trainY[:] == "baseball")]
+        canadaTS = trainX[np.where(trainY[:] == "canada")]
+        conspiracyTS = trainX[np.where(trainY[:] == "conspiracy")]
+        europeTS = trainX[np.where(trainY[:] == "europe")]
+        funnyTS = trainX[np.where(trainY[:] == "funny")]
+        gameofthronesTS = trainX[np.where(trainY[:] == "gameofthrones")]
+        globalOffensiveTS = trainX[np.where(trainY[:] == "GlobalOffensive")]
+        hockeyTS = trainX[np.where(trainY[:] == "hockey")]
+        leagueoflegnedsTS = trainX[np.where(trainY[:] == "leagueoflegends")]
+        moviesTS = trainX[np.where(trainY[:] == "movies")]
+        musicTS = trainX[np.where(trainY[:] == "Music")]
+        nbaTS = trainX[np.where(trainY[:] == "nba")]
+        nflTS = trainX[np.where(trainY[:] == "nfl")]
+        overwatchTS = trainX[np.where(trainY[:] == "Overwatch")]
+        soccerTS = trainX[np.where(trainY[:] == "soccer")]
+        treesTS = trainX[np.where(trainY[:] == "trees")]
+        worldnewsTS = trainX[np.where(trainY[:] == "worldnews")]
+        wowTS = trainX[np.where(trainY[:] == "wow")]
 
         self.thetaY[0] = animeTS.shape[0] / countTS
         self.thetaY[1] = askRedditTS.shape[0] / countTS
@@ -56,7 +60,7 @@ class naiveBayes:
         self.thetaY[18] = worldnewsTS.shape[0] / countTS
         self.thetaY[19] = wowTS.shape[0] / countTS
 
-        numCols = trainSet.shape[1] -1
+        numCols = trainX.shape[1]
 
         for j in range(numCols):
             self.thetaJY[j] = {}
@@ -143,16 +147,42 @@ class naiveBayes:
 
 def main():
 
-    reader = csv.reader(open('sets\\reddit_train.csv', "rt", encoding="utf8"))
-    trainSet = list(reader) #create list of list of data
-    trainSet = np.array(trainSet, dtype= object) #change datatype to numpy array with pointer to the original list (strings are too long to be stored!)
+    # parse set and generate training and test sets
+    training_setfile = 'sets\\reddit_train.csv'
+    testing_setfile = 'sets\\reddit_test.csv'
+    # load dataset into a panda dataframe
+    parsed_Set = pd.read_csv(training_setfile, header=0, sep=',')
+    parsed_Test = pd.read_csv(testing_setfile, header=0, sep=',')
+    # train_x, test_x, train_y, test_y = model_selection.train_test_split(
+    #          parsed_Set['comments'], parsed_Set['subreddits'], train_size=0.8, test_size=0.2)
 
-    trainSet = np.delete(trainSet, 0, 0) # delete first row
-    trainSet = np.delete(trainSet, 0, 1) # delete first column
+    train_x = parsed_Set['comments']
+    train_y = parsed_Set['subreddits']
+    test_x = parsed_Test['comments']
 
-    print(trainSet[0][0])
-    print(trainSet[0][1])
-    #'sets\\reddit_train.csv'
+    # tf*idf vectorizer
+    tf_idf_vectorizer = TfidfVectorizer(analyzer='word')
+    vectors_train_idf = tf_idf_vectorizer.fit_transform(train_x)
+    vectors_test_idf = tf_idf_vectorizer.transform(test_x)
+    # normalization
+    vectors_train_idf_normalized = normalize(vectors_train_idf)
+    vectors_test_idf_normalized = normalize(vectors_test_idf)
+    # pre-processing / selector
+    # sel = VarianceThreshold(threshold=(0.8))
+    # vectors_train_idf_selected = sel.fit(vectors_train_idf_normalized)
+    # vectors_test_idf_selected = sel.fit(vectors_test_idf_normalized)
+    selector = SelectPercentile(percentile=25)
+    vectors_train_idf_selected = selector.fit_transform(vectors_train_idf_normalized, train_y)
+    vectors_test_idf_selected = selector.transform(vectors_test_idf_normalized)
+
+    nb = naiveBayes()
+    nb.fit(vectors_train_idf_selected, train_y)
+    predictions = nb.predict(vectors_test_idf_selected)
+    pd.DataFrame(predictions).to_csv("sets\\prediction.csv", header = ["Category"], index_label= "Id")
+    print("done!")
+
+    
+    
 
 if __name__ == '__main__':
     main()
