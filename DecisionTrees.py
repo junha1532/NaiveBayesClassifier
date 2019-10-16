@@ -4,6 +4,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.preprocessing import normalize
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
+from sklearn.svm import LinearSVC
 import pandas as pd
 
 
@@ -60,6 +61,7 @@ def main():
     model_decisiontree = DecisionTreeClassifier(criterion='gini', max_depth=300)
     model_naivebayes = naive_bayes.MultinomialNB()
     model_logisticregression = LogisticRegression()
+    model_linearsvc = LinearSVC()
     # train and test the models for accuracy
     acc = train_model(model_naivebayes, train_x, train_y, test_x, test_y)
     print("naive bayes with idf: ", acc)
@@ -67,8 +69,8 @@ def main():
     print("logistic regression with idf: ", acc)
     acc = train_model(model_decisiontree, train_x, train_y, test_x, test_y)
     print("Decision Tree with idf: ", acc)
-
-    return
+    acc = train_model(model_linearsvc, train_x, train_y, test_x, test_y)
+    print("LinearSVC with idf: ", acc)
 
 
 if __name__ == '__main__':
