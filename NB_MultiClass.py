@@ -4,7 +4,7 @@ import csv
 import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.feature_selection import SelectPercentile
-from sklearn.preprocessing import normalize
+from sklearn.preprocessing import normalize, binarize
 
 
 class naiveBayes:
@@ -35,10 +35,14 @@ class naiveBayes:
         19:"wow"
     }
 
-    def __init__(self):
-        pass
+    def __init__(self, alpha = 1.0, binarize = 0.0):
+        self.alpha = alpha
+        self.binarize = binarize
 
     def fit(self, trainX, trainY):
+
+        if self.binarize is not None:
+            trainX = binarize(trainX, threshold = self.binarize)
 
         countTS = trainX.shape[0]  # number of training examples
         animeTS = trainX[np.where(trainY[:] == self.predictionClass[0])]
@@ -91,64 +95,64 @@ class naiveBayes:
             self.thetaJY[j] = {}
 
             count = animeTS[:, j].count_nonzero()
-            self.thetaJY[j][0] = (count + 1) / (animeTS.shape[0] + 2)
+            self.thetaJY[j][0] = (count + self.alpha) / (animeTS.shape[0] + 2*self.alpha)
 
             count = askRedditTS[:, j].count_nonzero()
-            self.thetaJY[j][1] = (count + 1) / (askRedditTS.shape[0] + 2)
+            self.thetaJY[j][1] = (count + self.alpha) / (askRedditTS.shape[0] + 2*self.alpha)
 
             count = baseballTS[:, j].count_nonzero()
-            self.thetaJY[j][2] = (count + 1) / (baseballTS.shape[0] + 2)
+            self.thetaJY[j][2] = (count + self.alpha) / (baseballTS.shape[0] + 2*self.alpha)
 
             count = canadaTS[:, j].count_nonzero()
-            self.thetaJY[j][3] = (count + 1) / (canadaTS.shape[0] + 2)
+            self.thetaJY[j][3] = (count + self.alpha) / (canadaTS.shape[0] + 2*self.alpha)
 
             count = conspiracyTS[:, j].count_nonzero()
-            self.thetaJY[j][4] = (count + 1) / (conspiracyTS.shape[0] + 2)
+            self.thetaJY[j][4] = (count + self.alpha) / (conspiracyTS.shape[0] + 2*self.alpha)
 
             count = europeTS[:, j].count_nonzero()
-            self.thetaJY[j][5] = (count + 1) / (europeTS.shape[0] + 2)
+            self.thetaJY[j][5] = (count + self.alpha) / (europeTS.shape[0] + 2*self.alpha)
 
             count = funnyTS[:, j].count_nonzero()
-            self.thetaJY[j][6] = (count + 1) / (funnyTS.shape[0] + 2)
+            self.thetaJY[j][6] = (count + self.alpha) / (funnyTS.shape[0] + 2*self.alpha)
 
             count = gameofthronesTS[:, j].count_nonzero()
-            self.thetaJY[j][7] = (count + 1) / (gameofthronesTS.shape[0] + 2)
+            self.thetaJY[j][7] = (count + self.alpha) / (gameofthronesTS.shape[0] + 2*self.alpha)
 
             count = globalOffensiveTS[:, j].count_nonzero()
-            self.thetaJY[j][8] = (count + 1) / (globalOffensiveTS.shape[0] + 2)
+            self.thetaJY[j][8] = (count + self.alpha) / (globalOffensiveTS.shape[0] + 2*self.alpha)
 
             count = hockeyTS[:, j].count_nonzero()
-            self.thetaJY[j][9] = (count + 1) / (hockeyTS.shape[0] + 2)
+            self.thetaJY[j][9] = (count + self.alpha) / (hockeyTS.shape[0] + 2*self.alpha)
 
             count = leagueoflegnedsTS[:, j].count_nonzero()
-            self.thetaJY[j][10] = (count + 1) / (leagueoflegnedsTS.shape[0] + 2)
+            self.thetaJY[j][10] = (count + self.alpha) / (leagueoflegnedsTS.shape[0] + 2*self.alpha)
 
             count = moviesTS[:, j].count_nonzero()
-            self.thetaJY[j][11] = (count + 1) / (moviesTS.shape[0] + 2)
+            self.thetaJY[j][11] = (count + self.alpha) / (moviesTS.shape[0] + 2*self.alpha)
 
             count = musicTS[:, j].count_nonzero()
-            self.thetaJY[j][12] = (count + 1) / (musicTS.shape[0] + 2)
+            self.thetaJY[j][12] = (count + self.alpha) / (musicTS.shape[0] + 2*self.alpha)
 
             count = nbaTS[:, j].count_nonzero()
-            self.thetaJY[j][13] = (count + 1) / (nbaTS.shape[0] + 2)
+            self.thetaJY[j][13] = (count + self.alpha) / (nbaTS.shape[0] + 2*self.alpha)
 
             count = nflTS[:, j].count_nonzero()
-            self.thetaJY[j][14] = (count + 1) / (nflTS.shape[0] + 2)
+            self.thetaJY[j][14] = (count + self.alpha) / (nflTS.shape[0] + 2*self.alpha)
 
             count = overwatchTS[:, j].count_nonzero()
-            self.thetaJY[j][15] = (count + 1) / (overwatchTS.shape[0] + 2)
+            self.thetaJY[j][15] = (count + self.alpha) / (overwatchTS.shape[0] + 2*self.alpha)
 
             count = soccerTS[:, j].count_nonzero()
-            self.thetaJY[j][16] = (count + 1) / (soccerTS.shape[0] + 2)
+            self.thetaJY[j][16] = (count + self.alpha) / (soccerTS.shape[0] + 2*self.alpha)
 
             count = treesTS[:, j].count_nonzero()
-            self.thetaJY[j][17] = (count + 1) / (treesTS.shape[0] + 2)
+            self.thetaJY[j][17] = (count + self.alpha) / (treesTS.shape[0] + 2*self.alpha)
 
             count = worldnewsTS[:, j].count_nonzero()
-            self.thetaJY[j][18] = (count + 1) / (worldnewsTS.shape[0] + 2)
+            self.thetaJY[j][18] = (count + self.alpha) / (worldnewsTS.shape[0] + 2*self.alpha)
 
             count = wowTS[:, j].count_nonzero()
-            self.thetaJY[j][19] = (count + 1) / (wowTS.shape[0] + 2)
+            self.thetaJY[j][19] = (count + self.alpha) / (wowTS.shape[0] + 2*self.alpha)
 
     def predict(self, testSet):
         numRows = testSet.shape[0] #number of testset
@@ -161,16 +165,16 @@ class naiveBayes:
             for k in range(numClasses):
                 featureLikelihood = 0
                 for j in range(numFeatures):
-                    if i in x.indices: #check if test sample's feature is 1
+                    if j in x.indices: #check if test sample's feature is 1
                         featureLikelihood += np.log(self.thetaJY[j][k])
                     else:
                         featureLikelihood += np.log(1 - self.thetaJY[j][k])
                 cpList.append(featureLikelihood + np.log(self.thetaY[k]))
             #add the right prediction
-            index = cpList.index(max(cpList))
-            predictList.append(self.predictionClass[index])
+            predictList.append(cpList)
+        agmxList = np.argmax(predictList, axis = 1)
         # this is for converting to numpy (column) array/vector
-        return np.array(predictList)
+        return [self.predictionClass[x] for x in agmxList]
 
 def main():
 
@@ -194,11 +198,11 @@ def main():
     # normalization
     #vectors_train_idf_normalized = normalize(vectors_train_idf)
     #vectors_test_idf_normalized = normalize(vectors_test_idf)
-    selector = SelectPercentile(percentile=10)
+    selector = SelectPercentile(percentile=0.2)
     vectors_train_idf_selected = selector.fit_transform(vectors_train_idf, train_y)
     vectors_test_idf_selected = selector.transform(vectors_test_idf)
 
-    nb = naiveBayes()
+    nb = naiveBayes(alpha = 0.1)
     nb.fit(vectors_train_idf_selected, train_y)
     predictions = nb.predict(vectors_test_idf_selected)
     pd.DataFrame(predictions).to_csv("sets\\prediction.csv", header = ["Category"], index_label= "Id")
