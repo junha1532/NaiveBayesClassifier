@@ -24,6 +24,20 @@ def check_testSet(model, train_x, train_y, test_x):
     return
 
 
+def process_singleset(train_x):
+    # vectorize text on a word level
+    vectorizer = CountVectorizer()
+    vectors_train = vectorizer.fit_transform(train_x)
+    # vectorize on  word level using tf-idf
+    tf_idf_vectorizer = TfidfVectorizer(analyzer='word')
+
+    vectors_train_idf = tf_idf_vectorizer.fit_transform(train_x)
+
+    # normalize
+    vectors_train_idf_normalized = normalize(vectors_train_idf)
+
+
+    return vectors_train_idf_normalized
 
 def process_set(train_x, test_x):
     # vectorize text on a word level
@@ -31,7 +45,7 @@ def process_set(train_x, test_x):
     vectors_train = vectorizer.fit_transform(train_x)
     vectors_test = vectorizer.transform(test_x)
     # vectorize on  word level using tf-idf
-    tf_idf_vectorizer = TfidfVectorizer(analyzer='word',stop_words="english")
+    tf_idf_vectorizer = TfidfVectorizer(analyzer='word')
 
     vectors_train_idf = tf_idf_vectorizer.fit_transform(train_x)
     vectors_test_idf = tf_idf_vectorizer.transform(test_x)
@@ -67,6 +81,7 @@ def get_set(setFile,clean):
 
     return train_x, test_x, train_y, test_y
 
+
 def train_model(model, train_x, train_y, test_x, test_y):
     # fit the training dataset on the given model
     model.fit(train_x, train_y)
@@ -84,6 +99,23 @@ def gridsearch(model,tuned_parameters,scores, train_x, train_y, test_x, test_y):
 
         print("Best parameters found")
         print(clf.best_params_)
+        print("Grid scores on development set:")
+        print()
+        means = clf.cv_results_['mean_test_score']
+        stds = clf.cv_results_['std_test_score']
+        for mean, std, params in zip(means, stds, clf.cv_results_['params']):
+            print("%0.3f (+/-%0.03f) for %r"
+                  % (mean, std * 2, params))
+        print()
+
+        print("Detailed classification report:")
+        print()
+        print("The model is trained on the full development set.")
+        print("The scores are computed on the full evaluation set.")
+        print()
+        y_true, y_pred = test_y, clf.predict(test_x)
+        print(classification_report(y_true, y_pred))
+        print()
 
 
 def main():
@@ -91,19 +123,21 @@ def main():
     testing_setfile = 'sets\\reddit_test.csv'
 
     # kaggle submission
-    # parsed_Set = pd.read_csv(training_setfile, header=0, sep=',')
-    # parsed_Test = pd.read_csv(testing_setfile, header=0, sep=',')
-    # kaggle_train_x = parsed_Set['comments']
-    # kaggle_train_y = parsed_Set['subreddits']
-    # kaggle_test_x = parsed_Test['comments']
-    #
-    # kaggle_train_x, kaggle_test_x = process_set(kaggle_train_x, kaggle_test_x)
-    # model_NBmulti = naive_bayes.MultinomialNB(alpha=0.19)
-    # model_NBmulti.fit(kaggle_train_x, kaggle_train_y)
-    # predictions = model_NBmulti.predict(kaggle_test_x)
-    #
-    # pd.DataFrame(predictions).to_csv("sets\\prediction.csv", header=["Category"], index_label="Id")
-    # print("kaggle prediction saved")
+    parsed_Set = pd.read_csv(training_setfile, header=0, sep=',')
+    parsed_Test = pd.read_csv(testing_setfile, header=0, sep=',')
+    kaggle_train_x = parsed_Set['comments']
+    kaggle_train_y = parsed_Set['subreddits']
+    kaggle_test_x = parsed_Test['comments']
+    kaggle_train_x = kaggle_train_x.apply(cleanHtml)
+    kaggle_test_x = kaggle_test_x.apply(cleanHtml)
+
+    kaggle_train_x, kaggle_test_x = process_set(kaggle_train_x, kaggle_test_x)
+    model_NBmulti = naive_bayes.MultinomialNB(alpha=0.19)
+    model_NBmulti.fit(kaggle_train_x, kaggle_train_y)
+    predictions = model_NBmulti.predict(kaggle_test_x)
+
+    pd.DataFrame(predictions).to_csv("sets\\prediction.csv", header=["Category"], index_label="Id")
+    print("kaggle prediction saved")
 
     #testing
     scoring = ['accuracy']
@@ -117,9 +151,11 @@ def main():
     # gridsearch(grid_NBmulti,tuned_parameters,scoring, train_x, train_y, test_x, test_y)
 
     # test multinomial naive bayes
+
     model_NBmulti = naive_bayes.MultinomialNB(alpha=0.19)
     acc = train_model(model_NBmulti, train_x, train_y, test_x, test_y)
     print("naive bayes multi with idf: ", acc)
+
 
     # gridsearch linearSVC
     # tuned_parameters = [{'tol': [(1e-9/x) for x in range(1, 3)],'C':[0.19]}]
