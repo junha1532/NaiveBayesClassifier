@@ -39,7 +39,7 @@ def process_singleset(train_x):
 
     return vectors_train_idf_normalized
 
-def process_set(train_x, test_x):
+def process_set(train_x, test_x, train_y):
     # vectorize text on a word level
     vectorizer = CountVectorizer()
     vectors_train = vectorizer.fit_transform(train_x)
@@ -54,8 +54,11 @@ def process_set(train_x, test_x):
     vectors_train_idf_normalized = normalize(vectors_train_idf)
     vectors_test_idf_normalized = normalize(vectors_test_idf)
 
+    selector = SelectPercentile(percentile=25)
+    vectors_train_idf_selected = selector.fit_transform(vectors_train_idf_normalized, train_y)
+    vectors_test_idf_selected = selector.transform(vectors_test_idf_normalized)
 
-    return vectors_train_idf_normalized, vectors_test_idf_normalized
+    return vectors_train_idf_selected, vectors_test_idf_selected
 
 #filter everything except letters
 def cleanHtml(t):
@@ -131,7 +134,7 @@ def main():
     kaggle_train_x = kaggle_train_x.apply(cleanHtml)
     kaggle_test_x = kaggle_test_x.apply(cleanHtml)
 
-    kaggle_train_x, kaggle_test_x = process_set(kaggle_train_x, kaggle_test_x)
+    kaggle_train_x, kaggle_test_x = process_set(kaggle_train_x, kaggle_test_x, kaggle_train_y)
     model_NBmulti = naive_bayes.MultinomialNB(alpha=0.19)
     model_NBmulti.fit(kaggle_train_x, kaggle_train_y)
     predictions = model_NBmulti.predict(kaggle_test_x)
@@ -142,8 +145,9 @@ def main():
     #testing
     scoring = ['accuracy']
     raw_set = get_set(training_setfile, True)
-    train_x, test_x = process_set(raw_set[0], raw_set[1])
     train_y, test_y = raw_set[2], raw_set[3]
+    train_x, test_x = process_set(raw_set[0], raw_set[1], train_y)
+
 
     # gridsearch multinomial naive bayes
     # tuned_parameters = [{'alpha': [(1.0/100)*x for x in range(1,100) ]}]
