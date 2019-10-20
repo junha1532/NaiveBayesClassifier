@@ -122,14 +122,14 @@ def main():
     # load dataset into a panda dataframe
     parsed_Set = pd.read_csv(training_setfile, header=0, sep=',')
     parsed_Test = pd.read_csv(testing_setfile, header=0, sep=',')
-    # train_x, test_x, train_y, test_y = model_selection.train_test_split(
-    #          parsed_Set['comments'], parsed_Set['subreddits'], train_size=0.8, test_size=0.2)
-    train_x = parsed_Set['comments']
-    train_y = parsed_Set['subreddits']
-    test_x = parsed_Test['comments']
+    train_x, test_x, train_y, test_y = model_selection.train_test_split(
+             parsed_Set['comments'], parsed_Set['subreddits'], train_size=0.8, test_size=0.2)
+    # train_x = parsed_Set['comments']
+    # train_y = parsed_Set['subreddits']
+    # test_x = parsed_Test['comments']
 
     # tf*idf vectorizer
-    vectorizer = TfidfVectorizer(binary= True, use_idf=False, norm=None, tokenizer=LemmaTokenizer())
+    vectorizer = TfidfVectorizer(binary= True, use_idf=False, norm=None)
     vectors_train_idf = vectorizer.fit_transform(train_x)
     vectors_test_idf = vectorizer.transform(test_x)
     # normalization
