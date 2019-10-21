@@ -5,4 +5,7 @@ When you run the ModelAccuracy.py, it will give the 5-fold accuracies of differe
 
 **NB_MultiClass.py** contains Bernoulli Naive Bayes model implemented from scratch and all the preprocessing with features.  
 When you run the MultiClass.py, it will give the 5-fold accuracies of the reddit_train data set.  
-**NOTE**: I have implemented the matrix operation instead of for loops in predict() method to decrease the run-time. However, the model is still quite slow it takes Around 25mins to run the 5-fold
+**NOTE**: I have implemented the matrix operation instead of for loops in predict() method to decrease the run-time. However, the model is still quite slow it takes Around 25mins to run the 5-fold  
+
+**Decision.py** this is another tests for all classification models - lots of overlap with **MOdelAccuracy.py** but it has  
+adda boost classifier implemented additonally. 
